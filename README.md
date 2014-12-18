@@ -21,7 +21,9 @@ gem install pitcgi
 ### Setup
 
 sudo mkdir /etc/pitcgi
+
 sudo chgrp www-data /etc/pitcgi
+
 sudo chmod 770 /etc/pitcgi
 
 
@@ -33,13 +35,17 @@ sudo chmod 770 /etc/pitcgi
 command:
 
 $ pitcgi set twitter.com
+
 open 'twitter.com' config with $EDITOR.
 
 $ pitcgi get twitter.com | lv
+
 get config of 'twitter.com' by YAML.
 
 $ pitcgi switch dev
+
 switch profile to 'dev'
+
 
 ruby lib.
 ```
@@ -63,6 +69,9 @@ required keys.
 ## Copyright
 
 Author:     sanadan <jecy00@gmail.com>
+
 Copyright:  Copyright (c) 2008 cho45
+
             Copyright (c) 2014 sanadan
+            
 License:    Ruby's
