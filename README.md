@@ -19,13 +19,12 @@ gem install pitcgi
 
 
 ### Setup
-
+```
 sudo mkdir /etc/pitcgi
-
 sudo chgrp www-data /etc/pitcgi
-
 sudo chmod 770 /etc/pitcgi
-
+sudo adduser `echo $USER` www-data
+```
 
 ## Features/Problems
 
@@ -51,15 +50,15 @@ ruby lib.
 ```
 require "pitcgi"
 
-config # Pitcgi.get("twitter.com", :require #> {
-  "username" #> "default value",
-  "password" #> "default value"
+config = Pitcgi.get("twitter.com", :require => {
+  "username" => "default value",
+  "password" => "default value"
 })
 
-Pitcgi.get("vox.com", :require #> {
-  "username" #> "default value",
-  "password" #> "default value"
-  "nickname" #> "default value"
+Pitcgi.get("vox.com", :require => {
+  "username" => "default value",
+  "password" => "default value"
+  "nickname" => "default value"
 })
 ```
 Pitcgi.get open $EDITOR with `require` hash if the setting does not have
@@ -68,10 +67,16 @@ required keys.
 
 ## Copyright
 
-Author:     sanadan <jecy00@gmail.com>
+Author:
 
-Copyright:  Copyright (c) 2008 cho45
+  sanadan <jecy00@gmail.com>
 
-            Copyright (c) 2014 sanadan
-            
-License:    Ruby's
+Copyright:
+
+  Copyright (c) 2008 cho45
+
+  Copyright (c) 2014 sanadan
+
+License:
+
+  Ruby's
