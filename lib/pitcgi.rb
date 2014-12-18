@@ -1,12 +1,12 @@
 
-require 'pit/version'
+require 'pitcgi/version'
 require "yaml"
 require "pathname"
 require "tempfile"
 
-module Pit
-	Directory = Pathname.new("~/.pit").expand_path
-	@@config  = Directory + "pit.yaml"
+module Pitcgi
+	Directory = Pathname.new("/etc/pitcgi").expand_path
+	@@config  = Directory + "pitcgi.yaml"
 	@@profile = Directory + "default.yaml"
 
 	# Set _name_ setting to current profile.
@@ -23,7 +23,7 @@ module Pit
 				return {}
 			end
 			c = (opts[:config] || self.get(name)).to_yaml
-			t = Tempfile.new("pit")
+			t = Tempfile.new("pitcgi")
 			t << c
 			t.close
 			system(ENV["EDITOR"], t.path)
@@ -67,16 +67,21 @@ module Pit
 
 	protected
 	def self.load
-		Directory.mkpath unless Directory.exist?
-		Directory.chmod 0700
+    unless Directory.exist?
+		  Directory.mkpath
+		  Directory.chmod 0770
+      Directory.chown(nil, 33)  # www-data
+    end
 		unless @@config.exist?
 			@@config.open("w") {|f| f << {"profile"=>"default"}.to_yaml }
-			@@config.chmod(0600)
+			@@config.chmod(0660)
+      @@config.chown(nil, 33)  # www-data
 		end
 		self.switch(self.config["profile"])
 		unless @@profile.exist?
 			@@profile.open("w") {|f| f << {}.to_yaml }
-			@@profile.chmod(0600)
+			@@profile.chmod(0660)
+      @@profile.chown(nil, 33)  # www-data
 		end
 		YAML.load(@@profile.read) || {}
 	end
@@ -88,10 +93,10 @@ end
 
 
 __END__
-p Pit.set("test")
-p Pit.get("test")
+p Pitcgi.set("test")
+p Pitcgi.get("test")
 
-config = Pit.get("twitter")
+config = Pitcgi.get("twitter")
 p config["password"]
 p config["username"]
 

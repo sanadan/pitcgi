@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
 # vim:ft=ruby:
-# ruby -Ilib bin/pit 
+# ruby -Ilib bin/pitcgi 
 
 require "optparse"
 require "pathname"
-require "pit"
+require "pitcgi"
 
-class PitCommand
-	VERSION = Pit::VERSION
-	NAME    = "pit"
+class PitcgiCommand
+	VERSION = Pitcgi::VERSION
+	NAME    = "pitcgi"
 
 	def self.run(argv)
 		new(argv.dup).run
@@ -99,21 +99,21 @@ class PitCommand
 		if $stdout.tty?
 			warn "do not output to tty."
 		else
-			puts Pit.get(name).to_yaml
+			puts Pitcgi.get(name).to_yaml
 		end
 	end
 
 	def cmd_set
 		name, = @argv
 		exit if name.nil?
-		Pit.set(name)
+		Pitcgi.set(name)
 	end
 
 	def cmd_switch
 		profile, = @argv
 		profile = "default" if profile.nil?
 		profile.gsub(/[^a-z0-9.-]/i, "")
-		Pit.switch(profile)
+		Pitcgi.switch(profile)
 		warn "Switch profile to #{profile}"
 	end
 
@@ -132,6 +132,6 @@ class PitCommand
 	end
 end
 
-PitCommand.run(ARGV)
+PitcgiCommand.run(ARGV)
 
 
