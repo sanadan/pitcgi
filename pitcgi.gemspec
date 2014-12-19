@@ -7,6 +7,7 @@ Gem::Specification.new do |gem|
   gem.name          = "pitcgi"
   gem.version       = Pitcgi::VERSION
   gem.authors       = ["sanadan"]
+  gem.licenses      = ['Ruby']
   gem.email         = ["jecy00@gmail.com"]
   gem.description   = %q|pitcgi: account management tool for cgi|
   gem.summary       = %q|pitcgi: account management tool for cgi|
