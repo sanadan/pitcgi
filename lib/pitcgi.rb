@@ -46,7 +46,7 @@ module Pitcgi
 	def self.get(name, opts={})
 		ret = self.load[name] || {}
 		if opts[:require]
-			unless opts[:require].keys.all? {|k| ret[k] }
+			unless opts[:require].keys.all? {|k| ret[k] != nil }
 				ret = opts[:require].update(ret)
 				ret = self.set(name, :config => ret)
 			end

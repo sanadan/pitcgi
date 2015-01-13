@@ -40,6 +40,10 @@ class PitcgiTest < Test::Unit::TestCase
 
 		assert_equal "foo4", Pitcgi.set("test", :data => {"username"=>"foo4","password"=>"bar4"})["username"]
 
+    Pitcgi.set('test', :data => {'bool1'=>true, 'bool2'=>false})
+    assert_equal true, Pitcgi.get('test')['bool1']
+    assert_equal false, Pitcgi.get('test')['bool2']
+
     # Clear
     Pitcgi.set("test", :data => {})
     Pitcgi.set("test2", :data => {})
