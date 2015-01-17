@@ -23,7 +23,7 @@ pitcgi is account management tool for cgi.
 $ sudo mkdir /etc/pitcgi
 $ sudo chgrp www-data /etc/pitcgi
 $ sudo chmod 770 /etc/pitcgi
-$ sudo adduser `echo $USER` www-data
+$ sudo adduser $USER www-data
 ```
 
 ## Features/Problems
