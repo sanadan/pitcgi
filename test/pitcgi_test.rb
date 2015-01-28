@@ -13,14 +13,31 @@ class Pathname
 	end
 end
 
-dir  = Pathname.tempname
-dir.mkpath
-#ENV["HOME"] = dir.to_s
-
 require File.dirname(__FILE__) + '/test_helper.rb'
-
 require "test/unit"
+ORG_DIR = Pitcgi::Directory.to_s.sub( /\/$/, '' ) + '.org'
+
 class PitcgiTest < Test::Unit::TestCase
+  class << self
+    def ps( command )
+      puts( command )
+      system( command )
+    end
+
+    def startup
+      # Rename /etc/pitcgi if exist
+      ps( "sudo mv #{Pitcgi::Directory} #{ORG_DIR}" )
+      ps( "pitcgi init" )
+    end
+
+    def shutdown
+      # Rename /etc/pitcgi.org if exist
+      puts
+      ps( "sudo rm -rf #{Pitcgi::Directory}" )
+      ps( "sudo mv #{ORG_DIR} #{Pitcgi::Directory}" )
+    end
+  end
+
 	def test_load
 		assert Pitcgi
 	end

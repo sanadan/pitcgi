@@ -1,6 +1,15 @@
+2015-01-28	sanadan <jecy00@gmail.com>
+
+	*	Add init command
+
+
+2015-01-13	sanadan <jecy00@gmail.com>
+
+	*	Fixed error using value "false"
+
+
 2014-12-18	sanadan <jecy00@gmail.com>
 
-	*	[release]:
-		pit 0.0.7を改造してcgi専用に修正。
-		コマンド名もpitcgiに修正。
+	*	Change pit 0.0.7 for cgi only.
+	*	Rename to pitcgi.
 

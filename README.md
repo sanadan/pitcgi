@@ -19,12 +19,9 @@ pitcgi is account management tool for cgi.
 
 
 ### Setup
-```sh
-$ sudo mkdir /etc/pitcgi
-$ sudo chgrp www-data /etc/pitcgi
-$ sudo chmod 770 /etc/pitcgi
-$ sudo adduser $USER www-data
-```
+
+    $ pitcgi init
+
 
 ## Features/Problems
 

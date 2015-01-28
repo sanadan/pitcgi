@@ -1,10 +1,10 @@
-
 require 'pitcgi/version'
 require "yaml"
 require "pathname"
 require "tempfile"
 
 module Pitcgi
+  NAME = 'pitcgi'
 	Directory = Pathname.new("/etc/pitcgi").expand_path
 	@@config  = Directory + "pitcgi.yaml"
 	@@profile = Directory + "default.yaml"
@@ -68,9 +68,13 @@ module Pitcgi
 	protected
 	def self.load
     unless Directory.exist?
-		  Directory.mkpath
-		  Directory.chmod 0770
-      Directory.chown(nil, 33)  # www-data
+      begin
+		    Directory.mkpath
+		    Directory.chmod 0770
+        Directory.chown(nil, 33)  # www-data
+      rescue Errno::EACCES => e
+        raise e, "May not be initialized. Use '#{NAME} init'."
+      end
     end
 		unless @@config.exist?
 			@@config.open("w") {|f| f << {"profile"=>"default"}.to_yaml }

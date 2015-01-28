@@ -8,7 +8,7 @@ require "pitcgi"
 
 class PitcgiCommand
 	VERSION = Pitcgi::VERSION
-	NAME    = "pitcgi"
+	NAME = Pitcgi::NAME
 
 	def self.run(argv)
 		new(argv.dup).run
@@ -47,6 +47,14 @@ class PitcgiCommand
 					Usage: #{NAME} switch <profile>
 
 					Switch profile to <profile>.
+				EOB
+			},
+
+			"init" => OptionParser.new { |opts|
+				opts.banner = <<-EOB.gsub(/^\t+/, "")
+					Usage: #{NAME} init
+
+					Initialize #{NAME} environment.
 				EOB
 			},
 		}
@@ -130,6 +138,14 @@ class PitcgiCommand
 			puts @parser.help
 		end
 	end
+
+  def cmd_init
+    puts( 'Initialize environment.' )
+    system( "sudo mkdir #{Pitcgi::Directory}" )
+    system( "sudo chmod 770 #{Pitcgi::Directory}" )
+    system( "sudo chgrp www-data #{Pitcgi::Directory}" )
+    system( "sudo adduser $USER www-data" )
+  end
 end
 
 PitcgiCommand.run(ARGV)
