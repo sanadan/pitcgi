@@ -5,6 +5,7 @@ require "tempfile"
 
 module Pitcgi
   NAME = 'pitcgi'
+  NOT_TO_BE_INITIALIZED = "It is likely not to be initialized. Use '#{NAME} init'."
 	Directory = Pathname.new("/etc/pitcgi").expand_path
 	@@config  = Directory + "pitcgi.yaml"
 	@@profile = Directory + "default.yaml"
@@ -12,8 +13,8 @@ module Pitcgi
 	# Set _name_ setting to current profile.
 	# If not _opts_ specified, this opens $EDITOR with current profile setting.
 	# If `data` specified, this just sets it to current profile.
-	# If `config` specified, this opens $EDITOR with merged hash with specified hash and
-	# current profile.
+	# If `config` specified, this opens $EDITOR with merged hash with specified
+  # hash and current profile.
 	def self.set(name, opts={})
 		profile = self.load
 		if opts.key?(:data)
@@ -58,11 +59,20 @@ module Pitcgi
 	# Profile is set of settings. You can switch some settings using profile.
 	def self.switch(name, opts={})
 		@@profile = Directory + "#{name}.yaml"
-		config = self.config
-		ret = config["profile"]
+		begin
+      config = self.config
+      ret = config["profile"]
+    rescue Errno::ENOENT
+      config = {}
+      ret = ""
+    end
 		config["profile"] = name
-		@@config.open("w") {|f| f << config.to_yaml }
-		ret
+		begin
+      @@config.open("w") {|f| f << config.to_yaml }
+    rescue Errno::ENOENT => e
+      raise e, NOT_TO_BE_INITIALIZED
+    end
+    ret
 	end
 
 	protected
@@ -73,14 +83,14 @@ module Pitcgi
 		    Directory.chmod 0770
         Directory.chown(nil, 33)  # www-data
       rescue Errno::EACCES => e
-        raise e, "May not be initialized. Use '#{NAME} init'."
+        raise e, NOT_TO_BE_INITIALIZED
       end
     end
 		unless @@config.exist?
 			@@config.open("w") {|f| f << {"profile"=>"default"}.to_yaml }
 			@@config.chmod(0660)
       @@config.chown(nil, 33)  # www-data
-		end
+    end
 		self.switch(self.config["profile"])
 		unless @@profile.exist?
 			@@profile.open("w") {|f| f << {}.to_yaml }
@@ -91,16 +101,11 @@ module Pitcgi
 	end
 
 	def self.config
-		YAML.load(@@config.read)
-	end
+#		begin
+      YAML.load(@@config.read)
+#    rescue Errno::ENOENT => e
+#      raise e, NOT_TO_BE_INITIALIZED
+#    end
+  end
 end
-
-
-__END__
-p Pitcgi.set("test")
-p Pitcgi.get("test")
-
-config = Pitcgi.get("twitter")
-p config["password"]
-p config["username"]
 

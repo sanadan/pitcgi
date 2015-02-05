@@ -48,14 +48,14 @@ ruby lib.
 require "pitcgi"
 
 config = Pitcgi.get("twitter.com", :require => {
-  "username" => "default value",
-  "password" => "default value"
+  "username" => "Number, mail address or username",
+  "password" => "Password"
 })
 
 Pitcgi.get("vox.com", :require => {
-  "username" => "default value",
-  "password" => "default value"
-  "nickname" => "default value"
+  "username" => "Username",
+  "password" => "Password"
+  "nickname" => "Nickname"
 })
 ```
 Pitcgi.get open $EDITOR with `require` hash if the setting does not have
@@ -69,7 +69,7 @@ Author:
 
 Copyright:
 * Copyright (c) 2008 cho45
-* Copyright (c) 2014 sanadan
+* Copyright (c) 2014-2015 sanadan
 
 License:
 * Ruby's

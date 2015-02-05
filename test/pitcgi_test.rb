@@ -17,17 +17,19 @@ require File.dirname(__FILE__) + '/test_helper.rb'
 require "test/unit"
 ORG_DIR = Pitcgi::Directory.to_s.sub( /\/$/, '' ) + '.org'
 
-class PitcgiTest < Test::Unit::TestCase
-  class << self
-    def ps( command )
-      puts( command )
-      system( command )
-    end
+def ps( command )
+  puts( command )
+  system( command )
+end
 
+class PitcgiTest < Test::Unit::TestCase
+  self.test_order = :defined
+
+  class << self
     def startup
       # Rename /etc/pitcgi if exist
       ps( "sudo mv #{Pitcgi::Directory} #{ORG_DIR}" )
-      ps( "pitcgi init" )
+#      ps( "pitcgi init" )
     end
 
     def shutdown
@@ -43,6 +45,8 @@ class PitcgiTest < Test::Unit::TestCase
 	end
 
 	def test_set_get
+    ps( "pitcgi init" )
+
 		Pitcgi.set("test", :data => {"username"=>"foo","password"=>"bar"})
 		assert_equal "foo", Pitcgi.get("test")["username"]
 		assert_equal "bar", Pitcgi.get("test")["password"]

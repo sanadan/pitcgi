@@ -92,7 +92,13 @@ class PitcgiCommand
 			method_name = "cmd_#{@subcommand}"
 			if self.respond_to?(method_name)
 				@subparsers[@subcommand].parse!(@argv)
-				self.send(method_name)
+				begin
+          self.send(method_name)
+        rescue Errno::EACCES
+          warn( $! )
+#        rescue Errno::ENOENT
+#          warn( $! )
+        end
 			else
 				puts "Not implemented subcommand: `#{@subcommand}'."
 				puts
@@ -114,7 +120,7 @@ class PitcgiCommand
 	def cmd_set
 		name, = @argv
 		exit if name.nil?
-		Pitcgi.set(name)
+    Pitcgi.set(name)
 	end
 
 	def cmd_switch
@@ -140,14 +146,19 @@ class PitcgiCommand
 	end
 
   def cmd_init
-    puts( 'Initialize environment.' )
-    system( "sudo mkdir #{Pitcgi::Directory}" )
-    system( "sudo chmod 770 #{Pitcgi::Directory}" )
-    system( "sudo chgrp www-data #{Pitcgi::Directory}" )
-    system( "sudo adduser $USER www-data" )
+    warn( 'Initialize environment.' )
+    exit unless system( "sudo -v" )
+    ws( "sudo mkdir #{Pitcgi::Directory}" )
+    ws( "sudo chmod 770 #{Pitcgi::Directory}" )
+    ws( "sudo chgrp www-data #{Pitcgi::Directory}" )
+    ws( "sudo adduser #{ENV[ 'USER' ]} www-data" )
+  end
+
+  def ws( command )
+    warn( command )
+    system( command )
   end
 end
 
 PitcgiCommand.run(ARGV)
-
 
