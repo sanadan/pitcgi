@@ -57,6 +57,22 @@ class PitcgiCommand
 					Initialize #{NAME} environment.
 				EOB
 			},
+
+			"scramble" => OptionParser.new { |opts|
+				opts.banner = <<-EOB.gsub(/^\t+/, "")
+					Usage: #{NAME} scramble
+
+					Enable scramble mode.
+				EOB
+			},
+
+			"descramble" => OptionParser.new { |opts|
+				opts.banner = <<-EOB.gsub(/^\t+/, "")
+					Usage: #{NAME} descramble
+
+					Disable scramble mode.
+				EOB
+			},
 		}
 
 		@parser = OptionParser.new do |parser|
@@ -96,8 +112,6 @@ class PitcgiCommand
           self.send(method_name)
         rescue Errno::EACCES
           warn( $! )
-#        rescue Errno::ENOENT
-#          warn( $! )
         end
 			else
 				puts "Not implemented subcommand: `#{@subcommand}'."
@@ -111,7 +125,7 @@ class PitcgiCommand
 		name, = @argv
 		exit if name.nil?
 		if $stdout.tty?
-			warn "do not output to tty."
+			warn "Do not output to tty."
 		else
 			puts Pitcgi.get(name).to_yaml
 		end
@@ -128,7 +142,7 @@ class PitcgiCommand
 		profile = "default" if profile.nil?
 		profile.gsub(/[^a-z0-9.-]/i, "")
 		Pitcgi.switch(profile)
-		warn "Switch profile to #{profile}"
+		warn( "Switch profile to #{profile}." )
 	end
 
 	def cmd_help
@@ -137,7 +151,7 @@ class PitcgiCommand
 			if @subparsers.key? subcommand
 				puts @subparsers[subcommand].help
 			else
-				puts "No such subcommand `#{subcommand}'"
+				puts "No such subcommand `#{subcommand}'."
 				puts @parser.help
 			end
 		else
@@ -154,6 +168,23 @@ class PitcgiCommand
     ws( "sudo adduser #{ENV[ 'USER' ]} www-data" )
   end
 
+  def cmd_scramble
+    begin
+      Pitcgi.scramble
+    rescue
+      warn( $! )
+    end
+  end
+
+  def cmd_descramble
+    begin
+      Pitcgi.descramble
+    rescue
+      warn( $! )
+    end
+  end
+
+  protected
   def ws( command )
     warn( command )
     system( command )

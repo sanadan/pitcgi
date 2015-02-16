@@ -1,4 +1,5 @@
 
 module Pitcgi
-  VERSION = '0.0.4'
+  NAME = 'pitcgi'
+  VERSION = '0.1.0'
 end

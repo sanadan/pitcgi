@@ -65,11 +65,15 @@ required keys.
 ## Copyright
 
 Author:
+
 * sanadan <jecy00@gmail.com>
 
 Copyright:
+
 * Copyright (c) 2008 cho45
 * Copyright (c) 2014-2015 sanadan
 
 License:
+
 * Ruby's
+

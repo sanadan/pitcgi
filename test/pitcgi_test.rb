@@ -17,9 +17,9 @@ require File.dirname(__FILE__) + '/test_helper.rb'
 require "test/unit"
 ORG_DIR = Pitcgi::Directory.to_s.sub( /\/$/, '' ) + '.org'
 
-def ps( command )
+def ps( command = nil )
   puts( command )
-  system( command )
+  system( command ) if command
 end
 
 class PitcgiTest < Test::Unit::TestCase
@@ -29,12 +29,11 @@ class PitcgiTest < Test::Unit::TestCase
     def startup
       # Rename /etc/pitcgi if exist
       ps( "sudo mv #{Pitcgi::Directory} #{ORG_DIR}" )
-#      ps( "pitcgi init" )
     end
 
     def shutdown
       # Rename /etc/pitcgi.org if exist
-      puts
+      ps()
       ps( "sudo rm -rf #{Pitcgi::Directory}" )
       ps( "sudo mv #{ORG_DIR} #{Pitcgi::Directory}" )
     end
@@ -79,7 +78,7 @@ class PitcgiTest < Test::Unit::TestCase
 		tst = Pathname.tempname
 		exe = Pathname.tempname
 		exe.open("w") do |f|
-			f.puts <<-EOF.gsub(/^\t+/, "")
+			f.puts <<-EOF.gsub(/^[\t ]+/, "")
 				#!/usr/bin/env ruby
 
 				File.open(ENV["TEST_FILE"], "w") do |f|
@@ -128,7 +127,7 @@ class PitcgiTest < Test::Unit::TestCase
 
 		r = Pitcgi.switch("profile2")
 		assert_equal "default", r
-		assert_equal "profile2", Pitcgi.config["profile"]
+		assert_equal( "profile2", Pitcgi.load_config[ "profile" ] )
 		Pitcgi.set("test", :data => {"username"=>"foo2","password"=>"bar2"})
 		assert_equal "foo2", Pitcgi.get("test")["username"]
 		assert_equal "bar2", Pitcgi.get("test")["password"]
@@ -144,4 +143,32 @@ class PitcgiTest < Test::Unit::TestCase
 		# Clear
     Pitcgi.set("test", :data => {})
 	end
+
+  def test_scramble
+    Pitcgi.set( 'test', :data => { 'username' => 'foo7', 'password' => 'bar7' } )
+    path = Pathname( '/etc/pitcgi/default.yaml' )
+    src = path.binread
+    Pitcgi.scramble
+    scrambled = path.binread
+    assert_not_equal( src, scrambled )
+    assert_raise do
+      Pitcgi.scramble
+    end
+    Pitcgi.descramble
+    descrambled = path.binread
+    assert_equal( src, descrambled )
+    assert_raise do
+      Pitcgi.descramble
+    end
+  end
+
+  def test_access_scrambled
+    username = 'foo8'
+    password = 'bar8'
+    Pitcgi.set( 'test', :data => { 'username' => username, 'password' => password } )
+    Pitcgi.scramble
+    assert_equal( Pitcgi.get( 'test' )[ 'username' ], username )
+    assert_equal( Pitcgi.get( 'test' )[ 'password' ], password )
+  end
 end
+
