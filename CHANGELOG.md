@@ -1,4 +1,4 @@
-### 0.1.0 / 2015-02-16  sanadan <jecy00@gmail.com>
+### 0.1.0 / 2015-02-17  sanadan <jecy00@gmail.com>
 
   * Enhance error messages
   * Add scramble and descramble commands

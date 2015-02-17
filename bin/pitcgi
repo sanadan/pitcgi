@@ -123,7 +123,10 @@ class PitcgiCommand
 
 	def cmd_get
 		name, = @argv
-		exit if name.nil?
+		if name.nil?
+      warn( '<name> is not specified.' )
+      exit
+    end
 		if $stdout.tty?
 			warn "Do not output to tty."
 		else
@@ -133,7 +136,10 @@ class PitcgiCommand
 
 	def cmd_set
 		name, = @argv
-		exit if name.nil?
+		if name.nil?
+      warn( '<name> is not specified.' )
+      exit
+    end
     Pitcgi.set(name)
 	end
 

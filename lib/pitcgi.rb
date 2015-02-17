@@ -9,8 +9,8 @@ module Pitcgi
 	ALREADY_SCRAMBLED = 'Already scrambled.'
   NOT_SCRAMBLED = 'Not scrambled.'
   Directory = Pathname.new("/etc/pitcgi").expand_path
-	@@config  = Directory + "pitcgi.yaml"
-	@@profile = Directory + "default.yaml"
+	@@config_path = Directory + "pitcgi.yaml"
+	@@profile_path = Directory + "default.yaml"
 
 	# Set _name_ setting to current profile.
 	# If not _opts_ specified, this opens $EDITOR with current profile setting.
@@ -60,7 +60,7 @@ module Pitcgi
 	# Switch to current profile to _name_.
 	# Profile is set of settings. You can switch some settings using profile.
 	def self.switch(name, opts={})
-		@@profile = Directory + "#{name}.yaml"
+		@@profile_path = Directory + "#{name}.yaml"
 		begin
       config = self.load_config
       ret = config["profile"]
@@ -84,7 +84,7 @@ module Pitcgi
     if config_scrambled[ 'scrambled' ]
       raise( ALREADY_SCRAMBLED )
     end
-    ScrambledEggs.new.scramble_file( @@profile )
+    ScrambledEggs.new.scramble_file( @@profile_path )
     config_scrambled[ 'scrambled' ] = true
     config[ get_scramble_config_name( config ) ] = config_scrambled
     self.save_config( config )
@@ -98,7 +98,7 @@ module Pitcgi
     if !config_scrambled[ 'scrambled' ]
       raise( NOT_SCRAMBLED )
     end
-    ScrambledEggs.new.descramble_file( @@profile )
+    ScrambledEggs.new.descramble_file( @@profile_path )
     config_scrambled[ 'scrambled' ] = false
     config[ get_scramble_config_name( config ) ] = config_scrambled
     self.save_config( config )
@@ -116,19 +116,19 @@ module Pitcgi
         raise e, NOT_TO_BE_INITIALIZED
       end
     end
-		unless @@config.exist?
-			@@config.open("w") {|f| f << {"profile"=>"default"}.to_yaml }
-			@@config.chmod(0660)
-      @@config.chown(nil, 33)  # www-data
+		unless @@config_path.exist?
+			@@config_path.open("w") {|f| f << {"profile"=>"default"}.to_yaml }
+			@@config_path.chmod(0660)
+      @@config_path.chown(nil, 33)  # www-data
     end
     config = self.load_config
 		self.switch( config[ 'profile' ] )
-		unless @@profile.exist?
-			@@profile.open("w") {|f| f << {}.to_yaml }
-			@@profile.chmod(0660)
-      @@profile.chown(nil, 33)  # www-data
+		unless @@profile_path.exist?
+			@@profile_path.open("w") {|f| f << {}.to_yaml }
+			@@profile_path.chmod(0660)
+      @@profile_path.chown(nil, 33)  # www-data
 		end
-    data = @@profile.binread
+    data = @@profile_path.binread
     if self.get_scramble_config( config )[ 'scrambled' ]
       data = ScrambledEggs.new.descramble( data )
     end
@@ -144,17 +144,17 @@ module Pitcgi
     end
 		# Not exist Pathname#write on Ruby 2.0.0.
     #@@profile.binwrite( data )
-    IO.binwrite( @@profile, data )
+    IO.binwrite( @@profile_path, data )
   end
 
   def self.load_config
-    YAML.load(@@config.read)
+    YAML.load( @@config_path.read )
   end
 
   def self.save_config( config )
     # Not exist Pathname#write on Ruby 2.0.0.
     #@@config.write( config.to_yaml )
-    IO.write( @@config, config.to_yaml )
+    IO.write( @@config_path, config.to_yaml )
   end
 
   def self.get_scramble_config( config )
