@@ -21,5 +21,6 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version = '>= 2.0.0'
   gem.add_development_dependency( 'rake' )
   gem.add_development_dependency( 'test-unit' )
+  gem.add_dependency( 'scrambled_eggs' )
 end
 
