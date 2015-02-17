@@ -147,7 +147,12 @@ class PitcgiCommand
 		profile, = @argv
 		profile = "default" if profile.nil?
 		profile.gsub(/[^a-z0-9.-]/i, "")
-		Pitcgi.switch(profile)
+		begin
+      Pitcgi.switch( profile )
+    rescue
+      warn( $! )
+      exit
+    end
 		warn( "Switch profile to #{profile}." )
 	end
 

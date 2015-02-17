@@ -8,6 +8,7 @@ module Pitcgi
   NOT_TO_BE_INITIALIZED = "It is likely not to be initialized. Use '#{NAME} init'."
 	ALREADY_SCRAMBLED = 'Already scrambled.'
   NOT_SCRAMBLED = 'Not scrambled.'
+  CAN_NOT_USE_PROFILE_NAME = 'Can not use it for profile name.'
   Directory = Pathname.new("/etc/pitcgi").expand_path
 	@@config_path = Directory + "pitcgi.yaml"
 	@@profile_path = Directory + "default.yaml"
@@ -61,6 +62,9 @@ module Pitcgi
 	# Profile is set of settings. You can switch some settings using profile.
 	def self.switch(name, opts={})
 		@@profile_path = Directory + "#{name}.yaml"
+    if @@profile_path == @@config_path
+      raise( CAN_NOT_USE_PROFILE_NAME )
+    end
 		begin
       config = self.load_config
       ret = config["profile"]
@@ -80,13 +84,13 @@ module Pitcgi
   # Scramble profile.
   def self.scramble
     config = self.load_config
-    config_scrambled = self.get_scramble_config( config )
+    config_scrambled = self.get_profile_config( config )
     if config_scrambled[ 'scrambled' ]
       raise( ALREADY_SCRAMBLED )
     end
     ScrambledEggs.new.scramble_file( @@profile_path )
     config_scrambled[ 'scrambled' ] = true
-    config[ get_scramble_config_name( config ) ] = config_scrambled
+    config[ get_profile_config_name( config ) ] = config_scrambled
     self.save_config( config )
     return
   end
@@ -94,13 +98,13 @@ module Pitcgi
   # Descramble profile.
   def self.descramble
     config = self.load_config
-    config_scrambled = self.get_scramble_config( config )
+    config_scrambled = self.get_profile_config( config )
     if !config_scrambled[ 'scrambled' ]
       raise( NOT_SCRAMBLED )
     end
     ScrambledEggs.new.descramble_file( @@profile_path )
     config_scrambled[ 'scrambled' ] = false
-    config[ get_scramble_config_name( config ) ] = config_scrambled
+    config[ get_profile_config_name( config ) ] = config_scrambled
     self.save_config( config )
     return
   end
@@ -129,7 +133,7 @@ module Pitcgi
       @@profile_path.chown(nil, 33)  # www-data
 		end
     data = @@profile_path.binread
-    if self.get_scramble_config( config )[ 'scrambled' ]
+    if self.get_profile_config( config )[ 'scrambled' ]
       data = ScrambledEggs.new.descramble( data )
     end
 		YAML.load( data ) || {}
@@ -139,7 +143,7 @@ module Pitcgi
     data = profile.to_yaml
     config = self.load_config
     self.switch( config[ 'profile' ] )
-    if self.get_scramble_config( config )[ 'scrambled' ]
+    if self.get_profile_config( config )[ 'scrambled' ]
       data = ScrambledEggs.new.scramble( data )
     end
 		# Not exist Pathname#write on Ruby 2.0.0.
@@ -157,13 +161,13 @@ module Pitcgi
     IO.write( @@config_path, config.to_yaml )
   end
 
-  def self.get_scramble_config( config )
-    name = get_scramble_config_name( config )
+  def self.get_profile_config( config )
+    name = get_profile_config_name( config )
     return config[ name ] ? config[ name ] : {}
   end
   
-  def self.get_scramble_config_name( config )
-    return config[ 'profile' ] + '_scramble'
+  def self.get_profile_config_name( config )
+    return config[ 'profile' ] + '_config'
   end
 end
 

@@ -132,9 +132,11 @@ class PitcgiTest < Test::Unit::TestCase
 		assert_equal "foo2", Pitcgi.get("test")["username"]
 		assert_equal "bar2", Pitcgi.get("test")["password"]
 
-    # Clear
-		Pitcgi.set("test", :data => {})
-    
+    assert_raise do
+      Pitcgi.switch( 'pitcgi' )
+    end
+    assert_equal( 'foo2', Pitcgi.get( 'test' )[ 'username' ] )
+
 		Pitcgi.switch("default")
 		Pitcgi.set("test", :data => {"username"=>"foo6","password"=>"bar6"})
 		assert_equal "foo6", Pitcgi.get("test")["username"]
