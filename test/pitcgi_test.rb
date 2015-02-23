@@ -171,6 +171,34 @@ class PitcgiTest < Test::Unit::TestCase
     Pitcgi.scramble
     assert_equal( Pitcgi.get( 'test' )[ 'username' ], username )
     assert_equal( Pitcgi.get( 'test' )[ 'password' ], password )
+    Pitcgi.descramble
+  end
+
+  def test_access_mix_scrambled
+    username = 'foo9'
+    password = 'bar9'
+    Pitcgi.set( 'test', :data => { 'username' => username, 'password' => password } )
+    Pitcgi.scramble
+    Pitcgi.switch( 'profile2' )
+    username2 = 'foo10'
+    password2 = 'bar10'
+    Pitcgi.set( 'test2', :data => { 'username2' => username2, 'password2' => password2 } )
+
+    Pitcgi.switch( 'default' )
+    assert_equal( Pitcgi.get( 'test' )[ 'username' ], username )
+    assert_equal( Pitcgi.get( 'test' )[ 'password' ], password )
+
+    Pitcgi.switch( 'profile2' )
+    assert_equal( Pitcgi.get( 'test2' )[ 'username2' ], username2 )
+    assert_equal( Pitcgi.get( 'test2' )[ 'password2' ], password2 )
+    Pitcgi.scramble
+    assert_equal( Pitcgi.get( 'test2' )[ 'username2' ], username2 )
+    assert_equal( Pitcgi.get( 'test2' )[ 'password2' ], password2 )
+
+    Pitcgi.switch( 'default' )
+    Pitcgi.descramble
+    assert_equal( Pitcgi.get( 'test' )[ 'username' ], username )
+    assert_equal( Pitcgi.get( 'test' )[ 'password' ], password )
   end
 end
 
