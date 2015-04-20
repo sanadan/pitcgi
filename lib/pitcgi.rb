@@ -128,12 +128,12 @@ module Pitcgi
     config = self.load_config
 		self.switch( config[ 'profile' ] )
 		unless @@profile_path.exist?
-			@@profile_path.open("w") {|f| f << {}.to_yaml }
+			@@profile_path.open("w")
 			@@profile_path.chmod(0660)
       @@profile_path.chown(nil, 33)  # www-data
 		end
     data = @@profile_path.binread
-    if self.get_profile_config( config )[ 'scrambled' ]
+    if self.get_profile_config( config )[ 'scrambled' ] && data.length > 0
       data = ScrambledEggs.new.descramble( data )
     end
 		YAML.load( data ) || {}
@@ -163,7 +163,7 @@ module Pitcgi
 
   def self.get_profile_config( config )
     name = get_profile_config_name( config )
-    return config[ name ] ? config[ name ] : {}
+    return config[ name ] ? config[ name ] : { 'scrambled' => true }
   end
   
   def self.get_profile_config_name( config )

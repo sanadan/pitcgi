@@ -149,18 +149,18 @@ class PitcgiTest < Test::Unit::TestCase
   def test_scramble
     Pitcgi.set( 'test', :data => { 'username' => 'foo7', 'password' => 'bar7' } )
     path = Pathname( '/etc/pitcgi/default.yaml' )
+    assert_nothing_raised do
+      Pitcgi.descramble
+    end
     src = path.binread
+    assert_raise do
+      Pitcgi.descramble
+    end
     Pitcgi.scramble
     scrambled = path.binread
     assert_not_equal( src, scrambled )
     assert_raise do
       Pitcgi.scramble
-    end
-    Pitcgi.descramble
-    descrambled = path.binread
-    assert_equal( src, descrambled )
-    assert_raise do
-      Pitcgi.descramble
     end
   end
 
@@ -168,17 +168,17 @@ class PitcgiTest < Test::Unit::TestCase
     username = 'foo8'
     password = 'bar8'
     Pitcgi.set( 'test', :data => { 'username' => username, 'password' => password } )
-    Pitcgi.scramble
+    Pitcgi.descramble
     assert_equal( Pitcgi.get( 'test' )[ 'username' ], username )
     assert_equal( Pitcgi.get( 'test' )[ 'password' ], password )
-    Pitcgi.descramble
+    Pitcgi.scramble
   end
 
   def test_access_mix_scrambled
     username = 'foo9'
     password = 'bar9'
     Pitcgi.set( 'test', :data => { 'username' => username, 'password' => password } )
-    Pitcgi.scramble
+    Pitcgi.descramble
     Pitcgi.switch( 'profile2' )
     username2 = 'foo10'
     password2 = 'bar10'
@@ -191,12 +191,12 @@ class PitcgiTest < Test::Unit::TestCase
     Pitcgi.switch( 'profile2' )
     assert_equal( Pitcgi.get( 'test2' )[ 'username2' ], username2 )
     assert_equal( Pitcgi.get( 'test2' )[ 'password2' ], password2 )
-    Pitcgi.scramble
+    Pitcgi.descramble
     assert_equal( Pitcgi.get( 'test2' )[ 'username2' ], username2 )
     assert_equal( Pitcgi.get( 'test2' )[ 'password2' ], password2 )
 
     Pitcgi.switch( 'default' )
-    Pitcgi.descramble
+    Pitcgi.scramble
     assert_equal( Pitcgi.get( 'test' )[ 'username' ], username )
     assert_equal( Pitcgi.get( 'test' )[ 'password' ], password )
   end
